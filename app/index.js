@@ -2,14 +2,14 @@
 import express from "express";
 import router from "./router.js"
 
-const app = express();
+const api = express();
 const port = 3000;
 
-app.use(express.json());
+api.use(express.json());
 
-app.listen(port);
+api.listen(port);
 
-router(app);
+router(api);
 
 // scrapeEvents({
 //     page: 1,

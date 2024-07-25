@@ -1,10 +1,10 @@
 {
     "name": "vlr-scrapping",
     "version": "1.0.0",
-    "main": "app/index.js",
+    "main": "api/index.js",
     "scripts": {
-        "start": "node app/index.js",
-        "dev": "nodemon app/index.js"
+        "start": "node api/index.js",
+        "dev": "nodemon api/index.js"
     },
     "type": "module",
     "keywords": [],

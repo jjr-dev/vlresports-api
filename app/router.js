@@ -1,7 +1,7 @@
 import * as EventService from "./services/event.service.js";
 
-export default function router(app) {
-    app.get('/events', async (req, res) => {
+export default function router(api) {
+    api.get('/events', async (req, res) => {
         const { page, region } = req.query;
 
         if (region) {
@@ -21,7 +21,7 @@ export default function router(app) {
             })).catch((err) => res.status(err.status).json(err));
     })
 
-    app.get('/events/:id/matches', (req, res) => {
+    api.get('/events/:id/matches', (req, res) => {
         const { id } = req.params;
         const { series, status } = req.query;
 
@@ -32,7 +32,7 @@ export default function router(app) {
             })).catch((err) => res.status(err.status).json(err));
     })
 
-    app.get('/events/regions', (req, res) => {
+    api.get('/events/regions', (req, res) => {
         EventService.listRegions()
             .then((data) => res.status(200).json({
                 status: 200,

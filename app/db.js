@@ -1,7 +1,7 @@
 import { JSONFilePreset } from "lowdb/node";
 import { randomUUID } from "crypto";
 
-const db = await JSONFilePreset('app/db.json', { teams: [], caches: [] });
+const db = await JSONFilePreset('api/db.json', { teams: [], caches: [] });
 db.randomUUID = randomUUID;
 
 db.find = (collection, key, value) => {
