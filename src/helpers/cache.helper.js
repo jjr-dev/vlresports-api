@@ -1,4 +1,4 @@
-import db from "../db.js";
+import db from "../../db.js";
 
 export function save(type, params, data, minutes = 10) {
     const expireIn = new Date();

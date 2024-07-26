@@ -72,16 +72,16 @@ export function scrapeEventMatches(data) {
                 $match.find('.match-item-vs-team').each((i, element) => {
                     const $team = $(element);
 
+                    const score = parseInt($team.find('.match-item-vs-team-score').text().trim());
+
                     const team = {
                         name: $team.find('.match-item-vs-team-name .text-of').clone().children().remove().end().text().trim(),
-                        score: parseInt($team.find('.match-item-vs-team-score').text().trim()),
+                        score: !isNaN(score) ? score : 0,
                         winner: $team.attr('class').split(' ').includes('mod-winner')
                     }
 
                     match.teams.push(team);
                 });
-
-                console.log(match);
 
                 matches.push(match);
             })

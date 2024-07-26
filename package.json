@@ -1,13 +1,12 @@
 {
     "name": "vlr-scrapping",
     "version": "1.0.0",
-    "main": "api/index.js",
-    "scripts": {
-        "start": "node api/index.js",
-        "dev": "nodemon api/index.js"
-    },
+    "main": "index.js",
     "type": "module",
-    "keywords": [],
+    "scripts": {
+        "start": "node index.js",
+        "dev": "nodemon index.js"
+    },
     "author": "",
     "license": "ISC",
     "description": "",
@@ -18,7 +17,6 @@
         "date-fns": "^3.6.0",
         "express": "^4.19.2",
         "lowdb": "^7.0.1",
-        "puppeteer": "^22.13.1",
         "slug": "^9.1.0"
     },
     "devDependencies": {

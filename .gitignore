@@ -1,4 +1,4 @@
-api/db.json
+db.json
 package-lock.json
 node_modules
-.vercel
+discloud.config
