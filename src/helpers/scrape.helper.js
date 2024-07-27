@@ -1,132 +1,61 @@
 import { getPage } from "./cheerio.helper.js"
-import * as dateFns from 'date-fns'
-import makeSlug from "slug";
 
-export function scrapeEvents(data) {
-    return new Promise(async (resolve) => {
-        const $ = await getPage(`/events${(data?.region ? `/${data.region}` : '')}`, { page: data?.page ?? 1 });
+export function scrapeMatches() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const $ = await getPage(`/Liquipedia:Matches`);
 
-        const events = {
-            'ongoing': [],
-            'upcoming': [],
-            'completed': []
-        };
+            const matches = [];
 
-        $(`.event-item`).each((i, element) => {
-            const $event = $(element);
+            $('.infobox_matches_content').each((i, element) => {
+                const $match = $(element);
 
-            const [id, slug] = $event.attr('href').split('/').slice(-2);
+                const teams = [];
 
-            const event = {
-                id,
-                title: $event.find('.event-item-title').text().trim(),
-                slug,
-                region: $event.find('.flag').attr('class').split(' ').slice(-1)[0].replace('mod-', ''),
-                icon: `https:${$event.find('.event-item-thumb img').attr('src')}`,
-                status: $event.find('.event-item-desc-item-status').text().trim(),
-                prize: $event.find('.mod-prize').clone().children().remove().end().text().trim(),
-                date: $event.find('.mod-dates').clone().children().remove().end().text().trim()
-            }
+                ['left', 'right'].forEach((pos) => {
+                    const $team = $match.find(`.team-${pos}`);
 
-            if (!events[event.status])
-                events[event.status] = [];
+                    const hasTeam = $team.find('img').length > 0;
 
-            events[event.status].push(event);
-        })
+                    const $lightIcon = $team.find('.team-template-image-icon.team-template-lightmode');
+                    const $darkIcon = $team.find('.team-template-image-icon.team-template-darkmode');
 
-        resolve(events);
-    })
-}
+                    const score = $match.find(`.versus span:${(pos == 'left' ? 'first' : 'last')}-child`).text().trim();
 
-export function scrapeEventMatches(data) {
-    return new Promise(async (resolve) => {
-        const $ = await getPage(`/event/matches/${data.id}`, {
-            series_id: data?.series,
-            group: data?.status
-        });
+                    const team = {
+                        tag: hasTeam ? $team.find('.team-template-text a').text().trim() : false,
+                        title: hasTeam ? $lightIcon.find('img').attr('alt') : "TBD",
+                        icons: {
+                            light: hasTeam ? `${process.env.BASE_URL}${$lightIcon.find('img').attr('src')}` : false,
+                            dark: hasTeam ? `${process.env.BASE_URL}${$darkIcon.find('img').attr('src')}` : false
+                        },
+                        score: score == "" ? 0 : parseInt(score)
+                    }
 
-        const matches = [];
+                    teams.push(team)
+                })
 
-        $(`.match-item`).each((i, element) => {
-            const $match = $(element);
-            const $event = $match.find('.match-item-event');
+                const timestamp = parseInt($match.find('.timer-object').attr('data-timestamp')) * 1000;
 
-            const [id, slug] = $match.attr('href').split('/').slice(-2);
+                const $tournament = $match.find('.tournament-flex');
 
-            const match = {
-                id,
-                slug,
-                date: dateFns.parse(`${$match.closest('.wf-card').prev('.wf-label.mod-large').clone().find('.wf-tag').remove().end().text().trim()} ${$match.find('.match-item-time').text().trim()}`, 'EEE, MMMM d, yyyy hh:mm a', new Date()),
-                status: $match.find('.ml-status').text().trim().toLowerCase(),
-                series: $event.find('.match-item-event-series').text().trim(),
-                stage: $event.clone().children().remove().end().text().trim(),
-                teams: []
-            };
-
-            $match.find('.match-item-vs-team').each((i, element) => {
-                const $team = $(element);
-
-                const score = parseInt($team.find('.match-item-vs-team-score').text().trim());
-                const title = $team.find('.match-item-vs-team-name .text-of').clone().children().remove().end().text().trim();
-
-                const team = {
-                    title,
-                    slug: makeSlug(title),
-                    score: !isNaN(score) ? score : 0,
-                    winner: $team.attr('class').split(' ').includes('mod-winner')
+                const match = {
+                    utc: new Date(timestamp).toUTCString(),
+                    timestamp,
+                    teams,
+                    tournament: {
+                        title: $tournament.find('a').text().trim(),
+                        icon: `${process.env.BASE_URL}${$tournament.find('img').attr('src')}`
+                    },
+                    type: $match.find('.versus-lower abbr').text().trim()
                 }
 
-                match.teams.push(team);
-            });
+                matches.push(match);
+            })
 
-            matches.push(match);
-        })
-
-        resolve(matches);
-    })
-}
-
-export function scrapeEventRegions() {
-    return new Promise(async (resolve) => {
-        const $ = await getPage(`/events`);
-
-        const regions = [];
-
-        $('.mod-header .wf-nav-item').each((i, element) => {
-            const $region = $(element);
-
-            const title = $region.find('.normal').text().trim();
-
-            const region = {
-                title,
-                short: $region.find('.small').text().trim(),
-                slug: makeSlug(title)
-            }
-
-            regions.push(region);
-        })
-
-        resolve(regions);
-    })
-}
-
-export function scrapeTeam(data) {
-    return new Promise(async (resolve) => {
-        const $ = await getPage(`/team/${data.id}`);
-
-        const $header = $('.team-header');
-
-        const title = $header.find('.team-header-name h1').text().trim();
-
-        const team = {
-            id: data.id,
-            title,
-            slug: makeSlug(title),
-            tag: $header.find('.team-header-name h2').text().trim(),
-            icon: `https:${$header.find('.team-header-logo img').attr('src')}`,
-            region: $header.find('.team-header-country .flag').attr('class').split(' ').slice(-1)[0].replace('mod-', '')
-        };
-
-        resolve(team);
+            return resolve(matches);
+        } catch (err) {
+            return reject(err)
+        }
     })
 }
