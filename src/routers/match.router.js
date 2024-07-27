@@ -1,12 +1,12 @@
-import * as TeamService from "../services/team.service.js"
-import express from "express"
+import * as MatchService from "../services/match.service.js"
+import express from "express";
 
 const router = express.Router()
 
-router.get('/:id', async (req, res) => {
-    const { id } = req.params;
+router.get('/', async (req, res) => {
+    const { tournaments } = req.query;
 
-    TeamService.find({ id })
+    MatchService.list({ tournaments })
         .then((data) => res.status(200).json({
             status: 200,
             data

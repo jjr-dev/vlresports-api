@@ -1,14 +1,15 @@
 import express from "express";
-import EventRouter from "./src/routers/event.router.js"
-import TeamRouter from "./src/routers/team.router.js"
+import MatchRouter from "./src/routers/match.router.js"
+import dotenv from 'dotenv'
+
+dotenv.config();
 
 const app = express();
 const port = 3000;
 
 app.use(express.json({ extends: false }));
 
-app.use('/api/events', EventRouter);
-app.use('/api/teams', TeamRouter);
+app.use('/api/matches', MatchRouter);
 
 app.listen(port);
 
