@@ -1,4 +1,4 @@
-import db from "../../db.js";
+import db from "../../db.js"
 
 export function save(type, params, data, minutes = 10) {
     const expireIn = new Date();
@@ -22,7 +22,7 @@ export function find(type, params) {
 
     if (new Date() > new Date(cache.expire_in)) {
         db.update(({ caches }) => {
-            caches.splice(db.findIndex('caches', 'id', cache.__id))
+            caches.splice(db.data.caches.findIndex((item) => item['id'] == cache.__id))
         })
 
         return false;

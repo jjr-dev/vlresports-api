@@ -1,4 +1,4 @@
-import * as EventService from "../services/event.service.js";
+import * as EventService from "../services/event.service.js"
 import express from "express";
 
 const router = express.Router()
@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
         .then((data) => res.status(200).json({
             status: 200,
             data
-        })).catch((err) => res.status(err.status).json(err));
+        })).catch((err) => res.status(err.code).json(err));
 });
 
 router.get('/:id/matches', (req, res) => {
@@ -31,7 +31,7 @@ router.get('/:id/matches', (req, res) => {
         .then((data) => res.status(200).json({
             status: 200,
             data
-        })).catch((err) => res.status(err.status).json(err));
+        })).catch((err) => res.status(err.code).json(err));
 })
 
 router.get('/events/regions', (req, res) => {
@@ -39,7 +39,7 @@ router.get('/events/regions', (req, res) => {
         .then((data) => res.status(200).json({
             status: 200,
             data
-        })).catch((err) => res.status(err.status).json(err));
+        })).catch((err) => res.status(err.code).json(err));
 })
 
 export default router;

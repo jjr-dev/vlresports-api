@@ -7,12 +7,12 @@ const web = axios.create({
 
 export function getPage(path, params) {
     return new Promise(async (resolve, reject) => {
-        const data = await web.get(path, { params }).then((res) => res.data).catch((err) => false);
+        const data = await web.get(path, { params }).then((res) => res.data).catch(() => { });
 
         if (!data)
             return reject({
                 message: "Not found",
-                status: 404
+                code: 404
             });
 
         const cleanedData = data.replace(/[\t\n]+/g, ' ').replace(/\s{2,}/g, ' ');
