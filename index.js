@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import MatchRouter from "./src/routers/match.router.js"
 import dotenv from 'dotenv'
 import * as CacheHelper from "./src/helpers/cache.helper.js"
@@ -6,6 +7,8 @@ import * as CacheHelper from "./src/helpers/cache.helper.js"
 dotenv.config();
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json({ extends: false }));
 
