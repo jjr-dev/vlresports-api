@@ -3,7 +3,11 @@ import axios from "axios";
 
 export function getPage(path, params) {
     return new Promise(async (resolve, reject) => {
-        const data = await axios.get(`${process.env.BASE_URL}/valorant${path}`, { params }).then((res) => res.data).catch(() => { });
+        const url = `${process.env.BASE_URL}/valorant${path}`;
+
+        console.log(`WebScrapping in ${url}`);
+
+        const data = await axios.get(url, { params }).then((res) => res.data).catch(() => { });
 
         if (!data)
             return reject({

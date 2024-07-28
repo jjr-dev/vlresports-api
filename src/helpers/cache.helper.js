@@ -4,7 +4,7 @@ export function init() {
     global.caches = [];
 }
 
-export function save(type, params, data, minutes = 10) {
+export function save(type, data, minutes, params = {}) {
     const expireIn = new Date();
     expireIn.setMinutes(expireIn.getMinutes() + minutes);
 
@@ -17,7 +17,7 @@ export function save(type, params, data, minutes = 10) {
     });
 }
 
-export function find(type, params) {
+export function find(type, params = {}) {
     const cache = global.caches.find((item) => item.type === type && item.params === JSON.stringify(params));
 
     if (!cache)
