@@ -5,10 +5,28 @@ export function scrapeMatches() {
         try {
             const $ = await getPage(`/Liquipedia:Matches`);
 
+            const repeatedMatches = {};
+
             const matches = [];
 
             $('.infobox_matches_content').each((i, element) => {
                 const $match = $(element);
+
+                const $tournament = $match.find('.tournament-flex');
+
+                const timestamp = parseInt($match.find('.timer-object').attr('data-timestamp')) * 1000;
+
+                const tournament = {
+                    title: $tournament.find('img').attr('alt'),
+                    icon: `${process.env.BASE_URL}${$tournament.find('img').attr('src')}`,
+                    stage: $tournament.find('a').text().trim()
+                }
+
+                if (!repeatedMatches[tournament.title])
+                    repeatedMatches[tournament.title] = []
+
+                if (repeatedMatches[tournament.title].includes(timestamp))
+                    return;
 
                 const teams = [];
 
@@ -35,21 +53,15 @@ export function scrapeMatches() {
                     teams.push(team)
                 })
 
-                const timestamp = parseInt($match.find('.timer-object').attr('data-timestamp')) * 1000;
-
-                const $tournament = $match.find('.tournament-flex');
-
                 const match = {
                     utc: new Date(timestamp).toUTCString(),
                     timestamp,
                     teams,
-                    tournament: {
-                        title: $tournament.find('img').attr('alt'),
-                        icon: `${process.env.BASE_URL}${$tournament.find('img').attr('src')}`,
-                        stage: $tournament.find('a').text().trim()
-                    },
+                    tournament,
                     type: $match.find('.versus-lower abbr').text().trim()
                 }
+
+                repeatedMatches[tournament.title].push(timestamp)
 
                 matches.push(match);
             })
