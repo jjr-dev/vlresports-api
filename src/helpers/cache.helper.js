@@ -1,29 +1,30 @@
-import db from "../../db.js"
+import { randomUUID } from "crypto";
+
+export function init() {
+    global.caches = [];
+}
 
 export function save(type, params, data, minutes = 10) {
     const expireIn = new Date();
     expireIn.setMinutes(expireIn.getMinutes() + minutes);
 
-    return db.update(({ caches }) => caches.push({
-        __id: db.randomUUID(),
+    global.caches.push({
+        __id: randomUUID(),
         type,
         params: JSON.stringify(params),
         data,
         expire_in: expireIn.toISOString()
-    }))
+    });
 }
 
 export function find(type, params) {
-    const { caches } = db.data;
-    const cache = caches.find((item) => item.type === type && item.params === JSON.stringify(params));
+    const cache = global.caches.find((item) => item.type === type && item.params === JSON.stringify(params));
 
     if (!cache)
         return false;
 
     if (new Date() > new Date(cache.expire_in)) {
-        db.update(({ caches }) => {
-            caches.splice(db.data.caches.findIndex((item) => item['id'] == cache.__id))
-        })
+        global.caches.splice(global.caches.findIndex((item) => item['id'] == cache.__id))
 
         return false;
     }

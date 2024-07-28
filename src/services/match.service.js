@@ -1,14 +1,14 @@
 import { scrapeMatches } from "../helpers/scrape.helper.js"
-import * as cache from "../helpers/cache.helper.js"
+import * as CacheHelper from "../helpers/cache.helper.js"
 
 export function list(params) {
     return new Promise(async (resolve, reject) => {
         try {
-            let matches = cache.find('matches', params, 30);
+            let matches = CacheHelper.find('matches', {}, 30);
 
             if (!matches) {
                 matches = await scrapeMatches(params);
-                cache.save('matches', params, matches);
+                CacheHelper.save('matches', params, matches);
             }
 
             matches = matches.filter(match => {
@@ -23,6 +23,7 @@ export function list(params) {
 
             return resolve(matches);
         } catch (err) {
+            console.log(err);
             return reject(err)
         }
     })
