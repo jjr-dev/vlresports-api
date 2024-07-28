@@ -1,32 +1,15 @@
 import { getPage } from "./cheerio.helper.js"
+import slug from "slug";
 
 export function scrapeMatches() {
     return new Promise(async (resolve, reject) => {
         try {
             const $ = await getPage(`/Liquipedia:Matches`);
 
-            const repeatedMatches = {};
-
             const matches = [];
 
             $('.infobox_matches_content').each((i, element) => {
                 const $match = $(element);
-
-                const $tournament = $match.find('.tournament-flex');
-
-                const timestamp = parseInt($match.find('.timer-object').attr('data-timestamp')) * 1000;
-
-                const tournament = {
-                    title: $tournament.find('img').attr('alt'),
-                    icon: `${process.env.BASE_URL}${$tournament.find('img').attr('src')}`,
-                    stage: $tournament.find('a').text().trim()
-                }
-
-                if (!repeatedMatches[tournament.title])
-                    repeatedMatches[tournament.title] = []
-
-                if (repeatedMatches[tournament.title].includes(timestamp))
-                    return;
 
                 const teams = [];
 
@@ -41,7 +24,7 @@ export function scrapeMatches() {
                     const score = $match.find(`.versus span:${(pos == 'left' ? 'first' : 'last')}-child`).text().trim();
 
                     const team = {
-                        tag: hasTeam ? $team.find('.team-template-text a').text().trim() : false,
+                        tag: hasTeam ? $team.find('.team-template-text a').text().trim() : "TBD",
                         title: hasTeam ? $lightIcon.find('img').attr('alt') : "TBD",
                         icons: {
                             light: hasTeam ? `${process.env.BASE_URL}${$lightIcon.find('img').attr('src')}` : false,
@@ -53,15 +36,26 @@ export function scrapeMatches() {
                     teams.push(team)
                 })
 
+                const $tournament = $match.find('.tournament-flex');
+
+                const timestamp = parseInt($match.find('.timer-object').attr('data-timestamp')) * 1000;
+
                 const match = {
                     utc: new Date(timestamp).toUTCString(),
                     timestamp,
                     teams,
-                    tournament,
+                    tournament: {
+                        title: $tournament.find('img').attr('alt'),
+                        icon: `${process.env.BASE_URL}${$tournament.find('img').attr('src')}`,
+                        stage: $tournament.find('a').text().trim()
+                    },
                     type: $match.find('.versus-lower abbr').text().trim()
                 }
 
-                repeatedMatches[tournament.title].push(timestamp)
+                match.__id = btoa(slug(`${timestamp} ${match.tournament.title} ${match.tournament.stage} ${teams[0].tag} ${teams[1].tag}`));
+
+                if (matches.find((m) => m.__id == match.__id))
+                    return;
 
                 matches.push(match);
             })
