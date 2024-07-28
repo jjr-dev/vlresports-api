@@ -44,8 +44,9 @@ export function scrapeMatches() {
                     timestamp,
                     teams,
                     tournament: {
-                        title: $tournament.find('a').text().trim(),
-                        icon: `${process.env.BASE_URL}${$tournament.find('img').attr('src')}`
+                        title: $tournament.find('img').attr('alt'),
+                        icon: `${process.env.BASE_URL}${$tournament.find('img').attr('src')}`,
+                        stage: $tournament.find('a').text().trim()
                     },
                     type: $match.find('.versus-lower abbr').text().trim()
                 }
