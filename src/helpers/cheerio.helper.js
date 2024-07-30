@@ -3,7 +3,7 @@ import axios from "axios";
 
 export function getPage(path, params) {
     return new Promise(async (resolve, reject) => {
-        const url = `${process.env.BASE_URL}/${path}`;
+        const url = `https://www.vlr.gg/${path}`;
 
         console.log(`WebScrapping in ${url}`);
 

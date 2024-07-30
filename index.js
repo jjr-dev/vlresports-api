@@ -6,6 +6,8 @@ import * as CacheHelper from "./src/helpers/cache.helper.js"
 
 dotenv.config();
 
+const port = 8080;
+
 const app = express();
 
 app.use(cors());
@@ -14,7 +16,7 @@ app.use(express.json({ extends: false }));
 
 app.use('/api/v1/matches', MatchRouter);
 
-app.listen(process.env.PORT, () => console.log(`Hosted in ${process.env.PORT}`));
+app.listen(port, () => console.log(`Hosted in ${port}`));
 
 CacheHelper.init();
 
