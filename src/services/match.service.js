@@ -1,21 +1,23 @@
 import { scrapeMatches } from "../helpers/scrape.helper.js"
 import * as CacheHelper from "../helpers/cache.helper.js"
 
-export function list(params) {
+export function list(query = {}, filter = {}) {
     return new Promise(async (resolve, reject) => {
         try {
-            let matches = CacheHelper.find('matches');
+            const type = filter.results ? 'matches' : 'matches_results';
+
+            let matches = CacheHelper.find(type, query);
 
             if (!matches) {
-                matches = await scrapeMatches(params);
-                CacheHelper.save('matches', matches, 10);
+                matches = await scrapeMatches(query, filter.results);
+                CacheHelper.save(type, matches, 10, query);
             }
 
             matches = matches.filter(match => {
-                if (!params.tournaments)
+                if (!filter.events)
                     return true;
 
-                if (params.tournaments && params.tournaments.some(tournament => match.tournament.title.includes(tournament)))
+                if (filter.events && filter.events.some(event => match.event.title.includes(event)))
                     return true;
             });
 

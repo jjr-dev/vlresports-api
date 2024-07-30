@@ -1,61 +1,50 @@
 import { getPage } from "./cheerio.helper.js"
-import slug from "slug";
 
-export function scrapeMatches() {
+export function scrapeMatches(query, results = false) {
     return new Promise(async (resolve, reject) => {
         try {
-            const $ = await getPage(`/Liquipedia:Matches`);
+            const $ = await getPage(`matches${results ? '/results' : ''}`, query);
 
             const matches = [];
 
-            $('.infobox_matches_content').each((i, element) => {
-                const $match = $(element);
+            $('.match-item').each((i, el) => {
+                const $match = $(el);
 
-                const teams = [];
+                const $date = $match.closest('.wf-card').prev();
+                $date.find('.wf-tag').remove();
 
-                ['left', 'right'].forEach((pos) => {
-                    const $team = $match.find(`.team-${pos}`);
+                const date = new Date(`${$date.text().trim()} ${$match.find('.match-item-time').text().trim()}`);
 
-                    const hasTeam = $team.find('img').length > 0;
+                const [id, slug] = $match.attr('href').split('/').slice(-2);
 
-                    const $lightIcon = $team.find('.team-template-image-icon.team-template-lightmode');
-                    const $darkIcon = $team.find('.team-template-image-icon.team-template-darkmode');
-
-                    const score = $match.find(`.versus span:${(pos == 'left' ? 'first' : 'last')}-child`).text().trim();
-
-                    const team = {
-                        tag: hasTeam ? $team.find('.team-template-text a').text().trim() : "TBD",
-                        title: hasTeam ? $lightIcon.find('img').attr('alt') : "TBD",
-                        icons: {
-                            light: hasTeam ? `${process.env.BASE_URL}${$lightIcon.find('img').attr('src')}` : false,
-                            dark: hasTeam ? `${process.env.BASE_URL}${$darkIcon.find('img').attr('src')}` : false
-                        },
-                        score: score == "" ? 0 : parseInt(score)
-                    }
-
-                    teams.push(team)
-                })
-
-                const $tournament = $match.find('.tournament-flex');
-
-                const timestamp = parseInt($match.find('.timer-object').attr('data-timestamp')) * 1000;
+                const $event = $match.find('.match-item-event');
 
                 const match = {
-                    utc: new Date(timestamp).toUTCString(),
-                    timestamp,
-                    teams,
-                    tournament: {
-                        title: $tournament.find('img').attr('alt'),
-                        icon: `${process.env.BASE_URL}${$tournament.find('img').attr('src')}`,
-                        stage: $tournament.find('a').text().trim()
+                    id,
+                    slug,
+                    timestamp: date.getTime(),
+                    utc: date.toUTCString(),
+                    status: $match.find('.ml-status').text().trim().toLowerCase(),
+                    event: {
+                        title: $event.clone().children().remove().end().text().trim(),
+                        stage: $event.find('.match-item-event-series').text().trim()
                     },
-                    type: $match.find('.versus-lower abbr').text().trim()
+                    teams: []
                 }
 
-                match.__id = btoa(slug(`${timestamp} ${match.tournament.title} ${match.tournament.stage} ${teams[0].tag} ${teams[1].tag}`));
+                $match.find('.match-item-vs-team').each((i, el) => {
+                    const $team = $(el);
 
-                if (matches.find((m) => m.__id == match.__id))
-                    return;
+                    const score = parseInt($team.find('.match-item-vs-team-score').text().trim());
+
+                    const team = {
+                        title: $team.find('.match-item-vs-team-name .text-of').clone().children().remove().end().text().trim(),
+                        score: isNaN(score) ? 0 : score,
+                        winner: $team.attr('class').split(' ').includes('mod-winner')
+                    }
+
+                    match.teams.push(team);
+                });
 
                 matches.push(match);
             })
