@@ -4,7 +4,7 @@ import MatchRouter from "./src/routers/match.router.js"
 import dotenv from 'dotenv'
 import * as CacheHelper from "./src/helpers/cache.helper.js"
 
-dotenv.config();
+dotenv.config({ path: process.env.NODE_ENV === 'development' ? '.env.dev' : '.env.prod' });
 
 const port = 8080;
 

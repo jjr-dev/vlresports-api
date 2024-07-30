@@ -14,6 +14,7 @@ export function scrapeMatches(query, results = false) {
                 $date.find('.wf-tag').remove();
 
                 const date = new Date(`${$date.text().trim()} ${$match.find('.match-item-time').text().trim()}`);
+                date.setHours(date.getHours() + parseInt(process.env.TIMEZONE ?? 0, 10))
 
                 const [id, slug] = $match.attr('href').split('/').slice(-2);
 
