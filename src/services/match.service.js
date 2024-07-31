@@ -4,13 +4,13 @@ import * as CacheHelper from "../helpers/cache.helper.js"
 export function list(query = {}, filter = {}) {
     return new Promise(async (resolve, reject) => {
         try {
-            const type = filter.results ? 'matches' : 'matches_results';
+            const type = filter.results ? 'matches_results' : 'matches';
 
-            let matches = CacheHelper.find(type, query);
+            let matches = CacheHelper.get(type, query);
 
             if (!matches) {
                 matches = await scrapeMatches(query, filter.results);
-                CacheHelper.save(type, matches, 10, query);
+                CacheHelper.set(type, matches, 600, query);
             }
 
             matches = matches.filter(match => {
