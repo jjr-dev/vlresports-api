@@ -1,33 +1,58 @@
-import { randomUUID } from "crypto";
+import fs from 'fs';
+import path from 'path';
+import { randomUUID } from 'crypto';
+import slug from 'slug';
+
+const cacheDir = 'cache';
 
 export function init() {
-    global.caches = [];
+    if (!fs.existsSync(cacheDir))
+        fs.mkdirSync(cacheDir, {
+            recursive: true,
+            mode: 0o755
+        });
 }
 
-export function save(type, data, minutes, params = {}) {
+export function set(type, data, seconds, params = {}) {
     const expireIn = new Date();
-    expireIn.setMinutes(expireIn.getMinutes() + minutes);
+    expireIn.setSeconds(expireIn.getSeconds() + seconds);
 
-    global.caches.push({
+    const filePath = _getFilePath(type, params);
+
+    fs.writeFileSync(filePath, JSON.stringify({
         __id: randomUUID(),
         type,
-        params: JSON.stringify(params),
         data,
         expire_in: expireIn.toISOString()
+    }), {
+        mode: 0o644
     });
 }
 
-export function find(type, params = {}) {
-    const cache = global.caches.find((item) => item.type === type && item.params === JSON.stringify(params));
+export function get(type, params = {}) {
+    const filePath = _getFilePath(type, params);
 
-    if (!cache)
+    if (!fs.existsSync(filePath))
         return false;
 
-    if (new Date() > new Date(cache.expire_in)) {
-        global.caches.splice(global.caches.findIndex((item) => item['id'] == cache.__id))
+    let cache = fs.readFileSync(filePath);
+    cache = JSON.parse(cache);
 
+    if (new Date() > new Date(cache.expire_in)) {
+        del(type, params);
         return false;
     }
 
     return cache.data;
+}
+
+function del(type, params = {}) {
+    const filePath = _getFilePath(type, params);
+
+    if (fs.existsSync(filePath))
+        fs.unlinkSync(filePath);
+}
+
+function _getFilePath(type, params = {}) {
+    return path.join(cacheDir, `${type}_${slug(JSON.stringify(params))}.json`);
 }
