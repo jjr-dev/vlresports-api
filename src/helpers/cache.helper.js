@@ -1,15 +1,15 @@
-import fs from 'fs';
-import path from 'path';
-import { randomUUID } from 'crypto';
-import slug from 'slug';
+import fs from "fs";
+import path from "path";
+import { randomUUID } from "crypto";
+import slug from "slug";
 
-const cacheDir = 'cache';
+const cacheDir = "cache";
 
 export function init() {
     if (!fs.existsSync(cacheDir))
         fs.mkdirSync(cacheDir, {
             recursive: true,
-            mode: 0o755
+            mode: 0o755,
         });
 }
 
@@ -19,24 +19,32 @@ export function set(type, data, seconds, params = {}) {
 
     const filePath = _getFilePath(type, params);
 
-    fs.writeFileSync(filePath, JSON.stringify({
-        __id: randomUUID(),
-        type,
-        data,
-        expire_in: expireIn.toISOString()
-    }), {
-        mode: 0o644
-    });
+    fs.writeFileSync(
+        filePath,
+        JSON.stringify({
+            __id: randomUUID(),
+            type,
+            data,
+            expire_in: expireIn.toISOString(),
+        }),
+        {
+            mode: 0o644,
+        }
+    );
 }
 
 export function get(type, params = {}) {
     const filePath = _getFilePath(type, params);
 
-    if (!fs.existsSync(filePath))
-        return false;
+    if (!fs.existsSync(filePath)) return false;
 
     let cache = fs.readFileSync(filePath);
-    cache = JSON.parse(cache);
+
+    try {
+        JSON.parse(cache);
+    } catch (err) {
+        return false;
+    }
 
     if (new Date() > new Date(cache.expire_in)) {
         del(type, params);
@@ -49,8 +57,7 @@ export function get(type, params = {}) {
 function del(type, params = {}) {
     const filePath = _getFilePath(type, params);
 
-    if (fs.existsSync(filePath))
-        fs.unlinkSync(filePath);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
 }
 
 function _getFilePath(type, params = {}) {
