@@ -34,24 +34,24 @@ export function set(type, data, seconds, params = {}) {
 }
 
 export function get(type, params = {}) {
-    const filePath = _getFilePath(type, params);
-
-    if (!fs.existsSync(filePath)) return false;
-
-    let cache = fs.readFileSync(filePath);
-
     try {
-        JSON.parse(cache);
+        const filePath = _getFilePath(type, params);
+
+        if (!fs.existsSync(filePath)) return false;
+
+        let cache = fs.readFileSync(filePath, "utf-8");
+
+        cache = JSON.parse(cache);
+
+        if (new Date() > new Date(cache.expire_in)) {
+            del(type, params);
+            return false;
+        }
+
+        return cache.data;
     } catch (err) {
         return false;
     }
-
-    if (new Date() > new Date(cache.expire_in)) {
-        del(type, params);
-        return false;
-    }
-
-    return cache.data;
 }
 
 function del(type, params = {}) {
