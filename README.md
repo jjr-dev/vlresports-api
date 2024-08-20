@@ -6,15 +6,14 @@
 
 **vlresports-api** é uma **API não oficial** para acessar dados do site _VLR.gg_, uma plataforma popular para notícias, estatísticas e resultados relacionados ao cenário competitivo de VALORANT. Esta API permite que desenvolvedores acessem informações sobre partidas, jogadores, equipes e muito mais, facilitando a integração desses dados em projetos pessoais e aplicativos.
 
-![Static Badge](https://img.shields.io/badge/some-badge-blue)
-![Static Badge](https://img.shields.io/badge/some_other-badge-red)
-![Static Badge](https://img.shields.io/badge/some-badge-green)
-![Static Badge](https://img.shields.io/badge/some-badge-purple)
+![Static Badge](https://img.shields.io/badge/license-MIT-green)
+![Static Badge](https://img.shields.io/badge/version-v1-red)
 
-[section 1](#section1) •
-[section 2](#section2) •
-[section 3](#section3) •
-[section 4](#section4)
+[Instalação](#instalação) •
+[Endpoints](#endpoints) •
+[Contribuição](#contribuição) •
+[Aviso de Isenção de Responsabilidade](#aviso-de-isenção-de-responsabilidade)
+[Licença](#licença)
 
 </div>
 
@@ -79,3 +78,7 @@ Contribuições são bem-vindas! Se você deseja contribuir para este projeto, p
 Este projeto é uma API não oficial e não é de forma alguma afiliado, patrocinado, endossado ou associado à Riot Games, Inc. "League of Legends", "Valorant", "Teamfight Tactics" e todas as marcas relacionadas são marcas registradas da Riot Games, Inc.
 
 Este projeto foi desenvolvido por fãs com o objetivo de fornecer funcionalidades adicionais e não visa violar os direitos de propriedade intelectual ou de marca registrada da Riot Games. O uso desta API é de responsabilidade do usuário e deve respeitar os Termos de Serviço da Riot Games.
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para mais detalhes.
