@@ -1,4 +1,4 @@
-import { scrapeMatches } from "../helpers/scrape.helper.js";
+import { scrapeMatches, scrapeMatch } from "../helpers/scrape.helper.js";
 import * as CacheHelper from "../helpers/cache.helper.js";
 
 export function list(query = {}, filter = {}) {
@@ -21,6 +21,24 @@ export function list(query = {}, filter = {}) {
             matches = matches.sort((a, b) => a.timestamp - b.timestamp);
 
             return resolve(matches);
+        } catch (err) {
+            console.log(err);
+            return reject(err);
+        }
+    });
+}
+
+export function find(query = {}) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let match = CacheHelper.get("match", query);
+
+            if (!match) {
+                match = await scrapeMatch({ match: query.id });
+                // CacheHelper.set(type, match, 600, query);
+            }
+
+            return resolve(match);
         } catch (err) {
             console.log(err);
             return reject(err);

@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import axios from "axios";
+import fs from "fs";
 
 export function getPage(path, params = {}) {
     return new Promise(async (resolve, reject) => {
